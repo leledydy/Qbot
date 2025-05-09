@@ -3,8 +3,6 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 
 dotenv.config();
-client.login(process.env.BOT_TOKEN);
-
 
 // Initialize Discord Client
 const client = new Client({
@@ -15,9 +13,9 @@ const client = new Client({
   ]
 });
 
-// Anthropic API key (replace with your own)
+// Anthropic API setup
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/claude/chat';
+const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
 // Function to call Anthropic API
 const callAnthropicAPI = async (messageContent) => {
@@ -25,41 +23,45 @@ const callAnthropicAPI = async (messageContent) => {
     const response = await axios.post(
       ANTHROPIC_API_URL,
       {
-        messages: [{ role: 'user', content: messageContent }],
+        model: "claude-3-haiku-20240307", // replace with your model
+        max_tokens: 1000,
+        messages: [
+          { role: "user", content: messageContent }
+        ]
       },
       {
         headers: {
-          'Authorization': `Bearer ${ANTHROPIC_API_KEY}`,
+          'x-api-key': ANTHROPIC_API_KEY,
+          'anthropic-version': '2023-06-01',
           'Content-Type': 'application/json',
-        },
+        }
       }
     );
-    return response.data.choices[0].message.content;
+    return response.data.content[0].text;
   } catch (error) {
-    console.error('Error calling Anthropic API:', error);
-    throw new Error('Failed to communicate with Anthropic API.');
+    console.error('🚨 Error calling Anthropic API:', error.response?.data || error.message);
+    return "❌ I couldn't get a response from Anthropic.";
   }
 };
 
+// Bot ready
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
 });
 
-// Listen to messages and respond in a specific channel
+// Message listener
 client.on('messageCreate', async (message) => {
-  // Avoid bot responding to itself or messages in other channels
   if (message.author.bot) return;
   if (message.channel.name !== '❓︱𝗮𝘀𝗸-𝘂𝘀-𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻') return;
 
   try {
-    // Get response from Anthropic API
     const reply = await callAnthropicAPI(message.content);
     message.reply(reply);
   } catch (err) {
-    console.error('❌ Error:', err);
+    console.error('❌ Error replying:', err);
     message.reply("Sorry, I couldn't process that right now.");
   }
 });
 
-// Log in with your Discord bot token
+// Now it's safe to log in
 client.login(process.env.BOT_TOKEN);
