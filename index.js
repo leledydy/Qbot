@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import OpenAI from 'openai';
+import axios from 'axios';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -13,13 +13,31 @@ const client = new Client({
   ]
 });
 
-// Initialize OpenAI
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Anthropic API key (replace with your own)
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/claude/chat';
 
-// Function to delay API requests
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Function to call Anthropic API
+const callAnthropicAPI = async (messageContent) => {
+  try {
+    const response = await axios.post(
+      ANTHROPIC_API_URL,
+      {
+        messages: [{ role: 'user', content: messageContent }],
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${ANTHROPIC_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data.choices[0].message.content;
+  } catch (error) {
+    console.error('Error calling Anthropic API:', error);
+    throw new Error('Failed to communicate with Anthropic API.');
+  }
+};
 
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
@@ -32,28 +50,12 @@ client.on('messageCreate', async (message) => {
   if (message.channel.name !== '❓︱𝗮𝘀𝗸-𝘂𝘀-𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻') return;
 
   try {
-    let model = 'gpt-3.5-turbo';  // Use GPT-3.5 as fallback for now
-
-    // Implementing Rate Limiting
-    await delay(1000);  // Wait for 1 second before making the API request (adjust as needed)
-
-    // Try sending the request
-    const completion = await openai.chat.completions.create({
-      model: model,
-      messages: [{ role: 'user', content: message.content }]
-    });
-
-    const reply = completion.choices[0].message.content;
+    // Get response from Anthropic API
+    const reply = await callAnthropicAPI(message.content);
     message.reply(reply);
-
   } catch (err) {
-    if (err.code === 'insufficient_quota') {
-      console.error('❌ Insufficient quota error, please check your OpenAI account usage.');
-      message.reply("Sorry, I can't process your request right now due to insufficient quota.");
-    } else {
-      console.error('❌ Error from OpenAI:', err);
-      message.reply("Sorry, I couldn't process that right now.");
-    }
+    console.error('❌ Error:', err);
+    message.reply("Sorry, I couldn't process that right now.");
   }
 });
 
