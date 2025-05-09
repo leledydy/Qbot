@@ -1,6 +1,8 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const OpenAI = require('openai');
-require('dotenv').config();
+import { Client, GatewayIntentBits } from 'discord.js';
+import OpenAI from 'openai';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Initialize Discord Client
 const client = new Client({
@@ -21,7 +23,7 @@ client.once('ready', () => {
 });
 
 // Listen to messages and respond in specific channel
-client.on('messageCreate', async message => {
+client.on('messageCreate', async (message) => {
   // Avoid bot responding to itself or messages in other channels
   if (message.author.bot) return;
   if (message.channel.name !== '❓︱𝗮𝘀𝗸-𝘂𝘀-𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻') return;
@@ -29,7 +31,7 @@ client.on('messageCreate', async message => {
   try {
     // Send the message content to OpenAI API for response
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4',  // Use GPT-4 model
+      model: 'gpt-4', // Use GPT-4 model
       messages: [{ role: 'user', content: message.content }]
     });
 
