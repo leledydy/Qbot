@@ -52,7 +52,7 @@ client.once('ready', () => {
 // Message listener
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-  if (message.channel.name !== '❓︱𝗮𝘀𝗸-𝘂𝘀-𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻') return;
+  if (message.channel.name !== '❓︱𝗮𝘀𝗸-𝐛𝐨𝐭-𝗾𝘂𝗲𝘀𝘁𝗶𝗼𝗻') return;
 
   try {
     const reply = await callAnthropicAPI(message.content);
