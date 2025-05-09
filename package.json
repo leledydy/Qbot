@@ -1,20 +1,14 @@
 {
-  "name": "discord-anthropic-bot",
+  "name": "Qbot",
   "version": "1.0.0",
-  "description": "A Discord bot using the Anthropic API",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "discord.js": "^14.0.0",
-    "dotenv": "^16.0.0"
-  },
-  "devDependencies": {},
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "author": "",
-  "license": "ISC"
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "axios": "^1.6.8"
+  }
 }
