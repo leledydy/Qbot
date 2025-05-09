@@ -3,6 +3,8 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 
 dotenv.config();
+client.login(process.env.BOT_TOKEN);
+
 
 // Initialize Discord Client
 const client = new Client({
